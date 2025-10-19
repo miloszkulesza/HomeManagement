@@ -9,6 +9,14 @@ namespace HomeManagement
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddCors(options => options.AddDefaultPolicy(builder =>
+            {
+                builder.WithOrigins("http://localhost:4200/")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowAnyOrigin();
+
+            }));
             builder.Services.AddDbContext<HomeManagementContext>(opt =>
             {
                 opt.UseSqlServer(builder.Configuration.GetConnectionString("HomeManagementConnection"));
@@ -24,6 +32,7 @@ namespace HomeManagement
             builder.Services.AddOpenApi();
             
             var app = builder.Build();
+            
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
@@ -34,10 +43,13 @@ namespace HomeManagement
                     opt.SpecUrl("/openapi/v1.json");
                 });
             }
+            app.UseCors();
+
             using var scope = app.Services.CreateScope();
             await InitializeDatabase.Seed(scope.ServiceProvider);
 
             app.UseHttpsRedirection();
+            
             app.UseAuthentication();
             app.UseAuthorization();
 
