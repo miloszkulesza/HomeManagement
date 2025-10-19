@@ -1,4 +1,6 @@
+using HomeManagement.Core.Consts;
 using HomeManagement.Infrastructure.Database;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HomeManagement.Controllers
@@ -22,6 +24,7 @@ namespace HomeManagement.Controllers
             _dbContext = dbContext;
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpGet(Name = "GetWeatherForecast")]
         public async Task<IEnumerable<WeatherForecast>> Get()
         {

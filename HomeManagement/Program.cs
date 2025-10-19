@@ -1,3 +1,4 @@
+using HomeManagement.Core.Consts;
 using HomeManagement.Infrastructure.Database;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -6,14 +7,19 @@ namespace HomeManagement
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddDbContext<HomeManagementContext>(opt =>
             {
                 opt.UseSqlServer(builder.Configuration.GetConnectionString("HomeManagementConnection"));
             });
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+            builder.Services.AddSingleton(TimeProvider.System);
+            builder.Services.AddAuthentication();
+            builder.Services.AddAuthorization();
+            builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
+                .AddRoles<IdentityRole>()
+                .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<HomeManagementContext>();
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
@@ -30,11 +36,15 @@ namespace HomeManagement
                     opt.SpecUrl("/openapi/v1.json");
                 });
             }
+            using var scope = app.Services.CreateScope();
+            await InitializeDatabase.Seed(scope.ServiceProvider);
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
+            app.MapIdentityApi<ApplicationUser>();
 
             app.Run();
         }
