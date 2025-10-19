@@ -1,4 +1,3 @@
-using HomeManagement.Core.Consts;
 using HomeManagement.Infrastructure.Database;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +24,6 @@ namespace HomeManagement
             builder.Services.AddOpenApi();
             
             var app = builder.Build();
-
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
@@ -43,8 +41,10 @@ namespace HomeManagement
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.MapControllers();
-            app.MapIdentityApi<ApplicationUser>();
+            app.MapGroup("/api")
+                .MapControllers();
+            app.MapGroup("/api/auth")
+                .MapIdentityApi<ApplicationUser>();
 
             app.Run();
         }
