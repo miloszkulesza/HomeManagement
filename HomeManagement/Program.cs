@@ -9,9 +9,10 @@ namespace HomeManagement
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var allowedHosts = builder.Configuration.GetSection("CORS:AllowedHosts").Get<string[]>();
             builder.Services.AddCors(options => options.AddDefaultPolicy(builder =>
             {
-                builder.WithOrigins("http://localhost:4200/")
+                builder.WithOrigins(allowedHosts!)
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowAnyOrigin();
