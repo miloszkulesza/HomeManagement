@@ -1,4 +1,6 @@
+using HomeManagement.Core.Interfaces;
 using HomeManagement.Infrastructure.Database;
+using HomeManagement.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +33,8 @@ namespace HomeManagement
                 .AddEntityFrameworkStores<HomeManagementContext>();
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
+
+            builder.Services.AddTransient<IAdminService, AdminService>();
             
             var app = builder.Build();
             
