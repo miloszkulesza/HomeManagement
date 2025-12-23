@@ -1,5 +1,7 @@
-using HomeManagement.Core.Interfaces;
+using HomeManagement.Core.Interfaces.Repositories;
+using HomeManagement.Core.Interfaces.Services;
 using HomeManagement.Infrastructure.Database;
+using HomeManagement.Infrastructure.Repositories;
 using HomeManagement.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +36,9 @@ namespace HomeManagement
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
 
-            builder.Services.AddTransient<IAdminService, AdminService>();
+            builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
+            builder.Services.AddScoped<ICalendarEventService, CalendarEventService>();
             
             var app = builder.Build();
             

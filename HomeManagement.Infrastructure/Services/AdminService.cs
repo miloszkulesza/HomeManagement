@@ -1,4 +1,4 @@
-﻿using HomeManagement.Core.Interfaces;
+﻿using HomeManagement.Core.Interfaces.Services;
 using HomeManagement.Core.ViewModels;
 using HomeManagement.Infrastructure.Database;
 using Microsoft.AspNetCore.Identity;

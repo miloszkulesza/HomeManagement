@@ -1,6 +1,6 @@
 ﻿using HomeManagement.Core.ViewModels;
 
-namespace HomeManagement.Core.Interfaces
+namespace HomeManagement.Core.Interfaces.Services
 {
     public interface IAdminService
     {
