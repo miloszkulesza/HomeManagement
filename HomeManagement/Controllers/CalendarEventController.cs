@@ -3,7 +3,6 @@ using HomeManagement.Core.DTO;
 using HomeManagement.Core.Interfaces.Services;
 using HomeManagement.Core.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HomeManagement.Controllers
@@ -37,7 +36,7 @@ namespace HomeManagement.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
     }

@@ -18,8 +18,6 @@ namespace HomeManagement.Infrastructure.Database
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.HasDefaultSchema("identity");
-
             modelBuilder.Entity<CalendarEvent>()
                 .HasOne<ApplicationUser>()
                 .WithMany(u => u.CalendarEvents)

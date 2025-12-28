@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HomeManagement.Controllers
 {
-    [Authorize(Roles = Roles.Admin)]
     [ApiController]
     [Route("[controller]")]
     public class AdminController : ControllerBase
@@ -18,6 +17,7 @@ namespace HomeManagement.Controllers
             _adminService = adminService;
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpGet]
         [Route("Users")]
         public async Task<ActionResult<List<ApplicationUserVM>>> GetUsers()
@@ -26,6 +26,7 @@ namespace HomeManagement.Controllers
             return Ok(user);
         }
 
+        [Authorize(Roles = Roles.User)]
         [HttpGet]
         [Route("Users/{email}")]
         public async Task<ActionResult<ApplicationUserVM?>> GetUser(string email)
@@ -34,6 +35,7 @@ namespace HomeManagement.Controllers
             return Ok(user);
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpGet]
         [Route("Roles")]
         public async Task<ActionResult<List<IdentityRoleVM>>> GetRoles()

@@ -41,7 +41,9 @@ namespace HomeManagement.Infrastructure.Services
 
         public async Task<CalendarEventVM> CreateCalendarEvent(CalendarEventCreateDTO dto)
         {
-            var user = _userManager.Users.First(x => x.Email == dto.UserEmail);
+            var user = _userManager.Users.FirstOrDefault(x => x.Email == dto.UserEmail);
+            if (user is null)
+                throw new Exception($"User with email {dto.UserEmail} not found");
             var entity = _mapper.Map<CalendarEvent>(dto);
             entity.UserId = user.Id;
             await _calendarEventRepo.AddAsync(entity);

@@ -14,7 +14,8 @@ namespace HomeManagement.Core.Profiles
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.calendarEvent.UserId))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.calendarEvent.StartDate))
                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.calendarEvent.Title))
-                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.userEmail));
+                .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.userEmail))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.calendarEvent.EndDate));
             CreateMap<CalendarEventCreateDTO, CalendarEvent>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()))
                 .ForMember(dest => dest.UserId, opt => opt.Ignore());
