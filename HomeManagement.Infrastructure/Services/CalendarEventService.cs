@@ -4,7 +4,8 @@ using HomeManagement.Core.Entities;
 using HomeManagement.Core.Interfaces.Repositories;
 using HomeManagement.Core.Interfaces.Services;
 using HomeManagement.Core.ViewModels;
-using HomeManagement.Infrastructure.Migrations;
+using HomeManagement.Infrastructure.Database;
+using Microsoft.AspNetCore.Identity;
 
 namespace HomeManagement.Infrastructure.Services
 {
@@ -13,14 +14,17 @@ namespace HomeManagement.Infrastructure.Services
         private readonly ICalendarEventRepository _calendarEventRepo;
         private readonly IMapper _mapper;
         private readonly IAdminService _adminService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public CalendarEventService(ICalendarEventRepository calendarEventRepo,
             IMapper mapper,
-            IAdminService adminService)
+            IAdminService adminService,
+            UserManager<ApplicationUser> userManager)
         {
             _calendarEventRepo = calendarEventRepo;
             _mapper = mapper;
             _adminService = adminService;
+            _userManager = userManager;
         }
 
         public async Task<List<CalendarEventVM>> GetCalendarEvents()
@@ -37,10 +41,11 @@ namespace HomeManagement.Infrastructure.Services
 
         public async Task<CalendarEventVM> CreateCalendarEvent(CalendarEventCreateDTO dto)
         {
+            var user = _userManager.Users.First(x => x.Email == dto.UserEmail);
             var entity = _mapper.Map<CalendarEvent>(dto);
+            entity.UserId = user.Id;
             await _calendarEventRepo.AddAsync(entity);
             await _calendarEventRepo.SaveChangesAsync();
-            var user = await _adminService.GetUserById(entity.UserId);
             return _mapper.Map<CalendarEventVM>((entity, user!.Email));
         }
     }
