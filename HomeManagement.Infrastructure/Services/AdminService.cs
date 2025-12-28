@@ -1,4 +1,5 @@
-﻿using HomeManagement.Core.Interfaces.Services;
+﻿using AutoMapper;
+using HomeManagement.Core.Interfaces.Services;
 using HomeManagement.Core.ViewModels;
 using HomeManagement.Infrastructure.Database;
 using Microsoft.AspNetCore.Identity;
@@ -9,12 +10,15 @@ namespace HomeManagement.Infrastructure.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IMapper _mapper;
 
         public AdminService(UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            IMapper mapper)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _mapper = mapper;
         }
 
         public async Task<ApplicationUserVM?> GetUser(string email)
@@ -25,11 +29,19 @@ namespace HomeManagement.Infrastructure.Services
                 return null;
 
             var userRoles = await _userManager.GetRolesAsync(user);
-            ApplicationUserVM userVM = new ApplicationUserVM
-            {
-                Email = email,
-                Roles = userRoles.ToList()
-            };
+            var userVM = _mapper.Map<ApplicationUserVM>((user, userRoles));
+            return userVM;
+        }
+
+        public async Task<ApplicationUserVM?> GetUserById(string id)
+        {
+            ApplicationUser? user = _userManager.Users.FirstOrDefault(x => x.Id == id);
+
+            if (user is null)
+                return null;
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var userVM = _mapper.Map<ApplicationUserVM>((user, userRoles));
             return userVM;
         }
 
@@ -40,11 +52,7 @@ namespace HomeManagement.Infrastructure.Services
             foreach (var user in users)
             {
                 var userRoles = await _userManager.GetRolesAsync(user);
-                userVMs.Add(new ApplicationUserVM
-                {
-                    Email = user.Email,
-                    Roles = userRoles.ToList()
-                });
+                userVMs.Add(_mapper.Map<ApplicationUserVM>((user, userRoles)));
             }
             return userVMs;
         }
@@ -56,13 +64,7 @@ namespace HomeManagement.Infrastructure.Services
             foreach (var role in roles)
             {
                 var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name ?? role.Id);
-                rolesVM.Add(new IdentityRoleVM
-                {
-                    Id = role.Id,
-                    Name = role.Name,
-                    NormalizedName = role.NormalizedName,
-                    Users = usersInRole.Select(x => x.Email!).ToList()
-                });
+                rolesVM.Add(_mapper.Map<IdentityRoleVM>((role, usersInRole)));
             }
             return rolesVM;
         }

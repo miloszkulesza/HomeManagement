@@ -1,5 +1,6 @@
 using HomeManagement.Core.Interfaces.Repositories;
 using HomeManagement.Core.Interfaces.Services;
+using HomeManagement.Core.Profiles;
 using HomeManagement.Infrastructure.Database;
 using HomeManagement.Infrastructure.Repositories;
 using HomeManagement.Infrastructure.Services;
@@ -35,6 +36,9 @@ namespace HomeManagement
                 .AddEntityFrameworkStores<HomeManagementContext>();
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
+            builder.Services.AddAutoMapper(cfg => { }, 
+                typeof(CalendarEventProfile),
+                typeof(ApplicationUserProfile));
 
             builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
