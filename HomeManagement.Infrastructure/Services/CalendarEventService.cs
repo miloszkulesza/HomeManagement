@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using HomeManagement.Core.DTO;
+using HomeManagement.Core.Entities;
 using HomeManagement.Core.Interfaces.Repositories;
 using HomeManagement.Core.Interfaces.Services;
 using HomeManagement.Core.ViewModels;
+using HomeManagement.Infrastructure.Migrations;
 
 namespace HomeManagement.Infrastructure.Services
 {
@@ -30,6 +33,15 @@ namespace HomeManagement.Infrastructure.Services
                 viewModels.Add(_mapper.Map<CalendarEventVM>((calendarEvent, user!.Email)));
             }
             return viewModels;
+        }
+
+        public async Task<CalendarEventVM> CreateCalendarEvent(CalendarEventCreateDTO dto)
+        {
+            var entity = _mapper.Map<CalendarEvent>(dto);
+            await _calendarEventRepo.AddAsync(entity);
+            await _calendarEventRepo.SaveChangesAsync();
+            var user = await _adminService.GetUserById(entity.UserId);
+            return _mapper.Map<CalendarEventVM>((entity, user!.Email));
         }
     }
 }

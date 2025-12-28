@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using HomeManagement.Core.DTO;
 using HomeManagement.Core.Entities;
 using HomeManagement.Core.ViewModels;
 
@@ -14,6 +15,8 @@ namespace HomeManagement.Core.Profiles
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.calendarEvent.StartDate))
                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.calendarEvent.Title))
                 .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.userEmail));
+            CreateMap<CalendarEventCreateDTO, CalendarEvent>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()));
         }
     }
 }
