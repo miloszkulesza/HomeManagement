@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using HomeManagement.Core.DTO;
 using HomeManagement.Core.Interfaces.Services;
 using HomeManagement.Core.ViewModels;
 using HomeManagement.Infrastructure.Database;
@@ -24,10 +25,8 @@ namespace HomeManagement.Infrastructure.Services
         public async Task<ApplicationUserVM?> GetUser(string email)
         {
             ApplicationUser? user = _userManager.Users.FirstOrDefault(x => x.Email == email);
-
             if (user is null)
                 return null;
-
             var userRoles = await _userManager.GetRolesAsync(user);
             var userVM = _mapper.Map<ApplicationUserVM>((user, userRoles));
             return userVM;
@@ -36,10 +35,8 @@ namespace HomeManagement.Infrastructure.Services
         public async Task<ApplicationUserVM?> GetUserById(string id)
         {
             ApplicationUser? user = _userManager.Users.FirstOrDefault(x => x.Id == id);
-
             if (user is null)
                 return null;
-
             var userRoles = await _userManager.GetRolesAsync(user);
             var userVM = _mapper.Map<ApplicationUserVM>((user, userRoles));
             return userVM;
@@ -67,6 +64,17 @@ namespace HomeManagement.Infrastructure.Services
                 rolesVM.Add(_mapper.Map<IdentityRoleVM>((role, usersInRole)));
             }
             return rolesVM;
+        }
+
+        public async Task<ApplicationUserVM> UpdatePutUserProfile(string id, ApplicationUserUpdateDTO dto)
+        {
+            var user = _userManager.Users.FirstOrDefault(x => x.Id == id);
+            if (user is null)
+                throw new Exception($"Nie znaleziono użytkownika o identyfikatorze {id}");
+            _mapper.Map(dto, user);
+            await _userManager.UpdateAsync(user);
+            var userRoles = await _userManager.GetRolesAsync(user);
+            return _mapper.Map<ApplicationUserVM>((user, userRoles));
         }
     }
 }

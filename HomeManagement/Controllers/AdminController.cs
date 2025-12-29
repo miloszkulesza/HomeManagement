@@ -1,4 +1,5 @@
 ﻿using HomeManagement.Core.Consts;
+using HomeManagement.Core.DTO;
 using HomeManagement.Core.Interfaces.Services;
 using HomeManagement.Core.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -33,6 +34,22 @@ namespace HomeManagement.Controllers
         {
             var user = await _adminService.GetUser(email);
             return Ok(user);
+        }
+
+        [Authorize(Roles = Roles.User)]
+        [HttpPut]
+        [Route("Users/{id}")]
+        public async Task<ActionResult<ApplicationUserVM?>> UpdatePutUserProfile(string id, ApplicationUserUpdateDTO dto)
+        {
+            try
+            {
+                var user = await _adminService.UpdatePutUserProfile(id, dto);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
         }
 
         [Authorize(Roles = Roles.Admin)]
