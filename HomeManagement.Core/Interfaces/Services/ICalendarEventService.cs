@@ -7,5 +7,7 @@ namespace HomeManagement.Core.Interfaces.Services
     {
         Task<List<CalendarEventVM>> GetCalendarEvents();
         Task<CalendarEventVM> CreateCalendarEvent(CalendarEventCreateDTO dto);
+        Task RemoveCalendarEvent(string id);
+        Task<CalendarEventVM> UpdatePutCalendarEvent(string id, CalendarEventUpdateDTO dto);
     }
 }

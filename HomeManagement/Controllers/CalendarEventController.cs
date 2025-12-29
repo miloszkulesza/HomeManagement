@@ -22,8 +22,15 @@ namespace HomeManagement.Controllers
         [HttpGet]
         public async Task<ActionResult<List<CalendarEventVM>>> GetCalendarEvents()
         {
-            var calendarEvents = await _calendarEventService.GetCalendarEvents();
-            return Ok(calendarEvents);
+            try
+            {
+                var calendarEvents = await _calendarEventService.GetCalendarEvents();
+                return Ok(calendarEvents);
+            }
+            catch (Exception ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
         }
 
         [HttpPost]
@@ -36,7 +43,37 @@ namespace HomeManagement.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                return UnprocessableEntity(ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<ActionResult> DeleteCalendarEvent(string id)
+        {
+            try
+            {
+                await _calendarEventService.RemoveCalendarEvent(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return UnprocessableEntity(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("{id}")]
+        public async Task<ActionResult<CalendarEventVM>> UpdatePutCalendarEvent(string id,  CalendarEventUpdateDTO dto)
+        {
+            try
+            {
+                var updateResult = await _calendarEventService.UpdatePutCalendarEvent(id, dto);
+                return Ok(updateResult);
+            }
+            catch (Exception ex)
+            {
+                return UnprocessableEntity(ex.Message);
             }
         }
     }

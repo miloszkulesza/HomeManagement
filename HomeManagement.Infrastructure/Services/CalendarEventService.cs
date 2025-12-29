@@ -43,12 +43,41 @@ namespace HomeManagement.Infrastructure.Services
         {
             var user = _userManager.Users.FirstOrDefault(x => x.Email == dto.UserEmail);
             if (user is null)
-                throw new Exception($"User with email {dto.UserEmail} not found");
+                throw new Exception($"Nie znaleziono użytkownika o adresie email {dto.UserEmail}");
             var entity = _mapper.Map<CalendarEvent>(dto);
             entity.UserId = user.Id;
             await _calendarEventRepo.AddAsync(entity);
             await _calendarEventRepo.SaveChangesAsync();
             return _mapper.Map<CalendarEventVM>((entity, user!.Email));
+        }
+
+        public async Task RemoveCalendarEvent(string id)
+        {
+            var calendarEvent =  await  GetCalendarEventById(id);
+            _calendarEventRepo.Remove(calendarEvent);
+            await _calendarEventRepo.SaveChangesAsync();
+        }
+
+        public async Task<CalendarEventVM> UpdatePutCalendarEvent(string id, CalendarEventUpdateDTO dto)
+        {
+            var calendarEvent = await GetCalendarEventById(id);
+            _mapper.Map(dto, calendarEvent);
+            _calendarEventRepo.Update(calendarEvent);
+            await _calendarEventRepo.SaveChangesAsync();
+            var user = await _adminService.GetUserById(calendarEvent.UserId);
+            return _mapper.Map<CalendarEventVM>((calendarEvent, user!.Email));
+        }
+
+        private async Task<CalendarEvent> GetCalendarEventById(string id)
+        {
+            Guid guid;
+            var parseResult = Guid.TryParse(id, out guid);
+            if (!parseResult)
+                throw new Exception($"Wartość {id} nie jest prawidłowa");
+            var calendarEvent = await _calendarEventRepo.GetByIdAsync(guid);
+            if (calendarEvent is null)
+                throw new Exception($"Nie odnaleziono wydarzenia w kalendarzu o identyfikatorze {id}");
+            return calendarEvent;
         }
     }
 }
