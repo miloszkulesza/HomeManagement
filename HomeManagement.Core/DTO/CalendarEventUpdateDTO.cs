@@ -3,8 +3,8 @@
     public class CalendarEventUpdateDTO
     {
         public string Title { get; set; } = null!;
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTimeOffset StartDate { get; set; }
+        public DateTimeOffset EndDate { get; set; }
         public string UserEmail { get; set; } = null!;
     }
 }

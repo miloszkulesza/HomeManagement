@@ -64,7 +64,7 @@ namespace HomeManagement.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<ActionResult<CalendarEventVM>> UpdatePutCalendarEvent(string id,  CalendarEventUpdateDTO dto)
+        public async Task<ActionResult<CalendarEventVM>> UpdatePutCalendarEvent(string id, CalendarEventUpdateDTO dto)
         {
             try
             {

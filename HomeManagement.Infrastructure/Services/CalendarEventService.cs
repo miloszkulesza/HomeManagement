@@ -34,7 +34,7 @@ namespace HomeManagement.Infrastructure.Services
             foreach (var calendarEvent in calendarEvents)
             {
                 var user = await _adminService.GetUserById(calendarEvent.UserId);
-                viewModels.Add(_mapper.Map<CalendarEventVM>((calendarEvent, user!.Email)));
+                viewModels.Add(_mapper.Map<CalendarEventVM>((calendarEvent, user)));
             }
             return viewModels;
         }
@@ -48,7 +48,7 @@ namespace HomeManagement.Infrastructure.Services
             entity.UserId = user.Id;
             await _calendarEventRepo.AddAsync(entity);
             await _calendarEventRepo.SaveChangesAsync();
-            return _mapper.Map<CalendarEventVM>((entity, user!.Email));
+            return _mapper.Map<CalendarEventVM>((entity, user));
         }
 
         public async Task RemoveCalendarEvent(string id)
@@ -65,7 +65,7 @@ namespace HomeManagement.Infrastructure.Services
             _calendarEventRepo.Update(calendarEvent);
             await _calendarEventRepo.SaveChangesAsync();
             var user = await _adminService.GetUserById(calendarEvent.UserId);
-            return _mapper.Map<CalendarEventVM>((calendarEvent, user!.Email));
+            return _mapper.Map<CalendarEventVM>((calendarEvent, user));
         }
 
         private async Task<CalendarEvent> GetCalendarEventById(string id)
