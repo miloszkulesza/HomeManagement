@@ -1,16 +1,15 @@
 ﻿using AutoMapper;
-using HomeManagement.Core.DTO;
+using HomeManagement.Application.DTO;
+using HomeManagement.Application.ViewModels;
 using HomeManagement.Core.Entities;
-using HomeManagement.Core.ViewModels;
-using HomeManagement.Infrastructure.Database;
 
-namespace HomeManagement.Core.Profiles
+namespace HomeManagement.Application.Profiles
 {
     public class CalendarEventProfile : Profile
     {
         public CalendarEventProfile()
         {
-            CreateMap<(CalendarEvent calendarEvent, ApplicationUserVM user), CalendarEventVM>()
+            CreateMap<(CalendarEvent calendarEvent, User user), CalendarEventVM>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.calendarEvent.Id))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.calendarEvent.UserId))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.calendarEvent.StartDate))
@@ -19,7 +18,9 @@ namespace HomeManagement.Core.Profiles
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.calendarEvent.EndDate))
                 .ForMember(dest => dest.CalendarEventBackgroundColor, opt => opt.MapFrom(src => src.user.CalendarEventBackgroundColor));
 
-            CreateMap<CalendarEvent, CalendarEventVM>();
+            CreateMap<CalendarEvent, CalendarEventVM>()
+                .ForMember(dest => dest.UserEmail, opt => opt.Ignore())
+                .ForMember(dest => dest.CalendarEventBackgroundColor, opt => opt.Ignore());
 
             CreateMap<CalendarEventCreateDTO, CalendarEvent>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()))

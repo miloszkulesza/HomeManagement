@@ -1,7 +1,7 @@
-﻿using HomeManagement.Core.Consts;
-using HomeManagement.Core.DTO;
+﻿using HomeManagement.Application.DTO;
+using HomeManagement.Application.ViewModels;
+using HomeManagement.Core.Consts;
 using HomeManagement.Core.Interfaces.Services;
-using HomeManagement.Core.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -43,7 +43,7 @@ namespace HomeManagement.Controllers
         {
             try
             {
-                var user = await _adminService.UpdatePutUserProfile(id, dto);
+                var user = await _adminService.UpdatePutUserProfile(id, new Core.Entities.User());
                 return Ok(user);
             }
             catch (Exception ex)

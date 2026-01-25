@@ -1,8 +1,7 @@
-﻿namespace HomeManagement.Core.DTO
+﻿namespace HomeManagement.Application.DTO
 {
-    public class CalendarEventCreateDTO
+    public class CalendarEventUpdateDTO
     {
-        public Guid Id { get; set; }
         public string Title { get; set; } = null!;
         public DateTimeOffset StartDate { get; set; }
         public DateTimeOffset EndDate { get; set; }

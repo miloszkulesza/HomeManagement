@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
-using HomeManagement.Core.DTO;
 using HomeManagement.Core.Entities;
 using HomeManagement.Core.Interfaces.Repositories;
 using HomeManagement.Core.Interfaces.Services;
-using HomeManagement.Core.ViewModels;
 using HomeManagement.Infrastructure.Database;
+using HomeManagement.Infrastructure.Migrations;
 using Microsoft.AspNetCore.Identity;
 
 namespace HomeManagement.Infrastructure.Services
@@ -27,28 +26,25 @@ namespace HomeManagement.Infrastructure.Services
             _userManager = userManager;
         }
 
-        public async Task<List<CalendarEventVM>> GetCalendarEvents()
+        public async Task<List<CalendarEvent>> GetCalendarEvents()
         {
             var calendarEvents = await _calendarEventRepo.GetAllAsync();
-            List<CalendarEventVM> viewModels = new List<CalendarEventVM>();
-            foreach (var calendarEvent in calendarEvents)
-            {
-                var user = await _adminService.GetUserById(calendarEvent.UserId);
-                viewModels.Add(_mapper.Map<CalendarEventVM>((calendarEvent, user)));
-            }
-            return viewModels;
+            return calendarEvents.ToList();
         }
 
-        public async Task<CalendarEventVM> CreateCalendarEvent(CalendarEventCreateDTO dto)
+        public async Task<CalendarEvent> CreateCalendarEvent(CalendarEvent calendarEvent)
         {
-            var user = _userManager.Users.FirstOrDefault(x => x.Email == dto.UserEmail);
-            if (user is null)
-                throw new Exception($"Nie znaleziono użytkownika o adresie email {dto.UserEmail}");
-            var entity = _mapper.Map<CalendarEvent>(dto);
-            entity.UserId = user.Id;
-            await _calendarEventRepo.AddAsync(entity);
+            //var user = _userManager.Users.FirstOrDefault(x => x.Email == dto.UserEmail);
+            //if (user is null)
+            //    throw new Exception($"Nie znaleziono użytkownika o adresie email {dto.UserEmail}");
+            //var entity = _mapper.Map<CalendarEvent>(dto);
+            //entity.UserId = user.Id;
+            //await _calendarEventRepo.AddAsync(entity);
+            //await _calendarEventRepo.SaveChangesAsync();
+            //return _mapper.Map<CalendarEventVM>((entity, user));
+            await _calendarEventRepo.AddAsync(calendarEvent);
             await _calendarEventRepo.SaveChangesAsync();
-            return _mapper.Map<CalendarEventVM>((entity, user));
+            return calendarEvent;
         }
 
         public async Task RemoveCalendarEvent(string id)
@@ -58,14 +54,11 @@ namespace HomeManagement.Infrastructure.Services
             await _calendarEventRepo.SaveChangesAsync();
         }
 
-        public async Task<CalendarEventVM> UpdatePutCalendarEvent(string id, CalendarEventUpdateDTO dto)
+        public async Task<CalendarEvent> UpdatePutCalendarEvent(CalendarEvent calendarEvent)
         {
-            var calendarEvent = await GetCalendarEventById(id);
-            _mapper.Map(dto, calendarEvent);
             _calendarEventRepo.Update(calendarEvent);
             await _calendarEventRepo.SaveChangesAsync();
-            var user = await _adminService.GetUserById(calendarEvent.UserId);
-            return _mapper.Map<CalendarEventVM>((calendarEvent, user));
+            return calendarEvent;
         }
 
         private async Task<CalendarEvent> GetCalendarEventById(string id)

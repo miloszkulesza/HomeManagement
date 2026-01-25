@@ -1,4 +1,4 @@
-﻿namespace HomeManagement.Core.DTO
+﻿namespace HomeManagement.Application.DTO
 {
     public class ApplicationUserUpdateDTO
     {

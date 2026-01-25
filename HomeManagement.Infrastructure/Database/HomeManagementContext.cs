@@ -8,6 +8,7 @@ namespace HomeManagement.Infrastructure.Database
         : IdentityDbContext<ApplicationUser>(options)
     {
         public DbSet<CalendarEvent> CalendarEvents { get; set; }
+        public DbSet<WorkItem> WorkItems { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -21,7 +22,13 @@ namespace HomeManagement.Infrastructure.Database
             modelBuilder.Entity<CalendarEvent>()
                 .HasOne<ApplicationUser>()
                 .WithMany(u => u.CalendarEvents)
-                .HasForeignKey(e => e.UserId)
+                .HasForeignKey(c => c.UserId)
+                .IsRequired();
+
+            modelBuilder.Entity<WorkItem>()
+                .HasOne<ApplicationUser>()
+                .WithMany(u => u.WorkItems)
+                .HasForeignKey(w => w.UserId)
                 .IsRequired();
         }
     }

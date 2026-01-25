@@ -1,13 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9 d17.14
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11415.280 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeManagement", "HomeManagement\HomeManagement.csproj", "{A89E74A6-AB0C-4CBA-9439-D4EE20F7F669}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeManagement.Infrastructure", "HomeManagement.Infrastructure\HomeManagement.Infrastructure.csproj", "{E35BB4AD-0A53-41B1-8C9C-C33F058F4A70}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeManagement.Core", "HomeManagement.Core\HomeManagement.Core.csproj", "{C5230B55-2741-4AE6-AF8A-E98D161EB235}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeManagement.Application", "HomeManagement.Application\HomeManagement.Application.csproj", "{F2C739E1-60FB-4B70-9FD6-550F46EABBF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeManagement.Tests", "HomeManagement.Tests\HomeManagement.Tests.csproj", "{E8ADB9E2-53D3-462F-9243-602B8D4858C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +31,14 @@ Global
 		{C5230B55-2741-4AE6-AF8A-E98D161EB235}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5230B55-2741-4AE6-AF8A-E98D161EB235}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5230B55-2741-4AE6-AF8A-E98D161EB235}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2C739E1-60FB-4B70-9FD6-550F46EABBF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2C739E1-60FB-4B70-9FD6-550F46EABBF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2C739E1-60FB-4B70-9FD6-550F46EABBF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2C739E1-60FB-4B70-9FD6-550F46EABBF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8ADB9E2-53D3-462F-9243-602B8D4858C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8ADB9E2-53D3-462F-9243-602B8D4858C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8ADB9E2-53D3-462F-9243-602B8D4858C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8ADB9E2-53D3-462F-9243-602B8D4858C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

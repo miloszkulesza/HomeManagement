@@ -1,13 +1,12 @@
-﻿using HomeManagement.Core.DTO;
-using HomeManagement.Core.ViewModels;
+﻿using HomeManagement.Core.Entities;
 
 namespace HomeManagement.Core.Interfaces.Services
 {
     public interface ICalendarEventService
     {
-        Task<List<CalendarEventVM>> GetCalendarEvents();
-        Task<CalendarEventVM> CreateCalendarEvent(CalendarEventCreateDTO dto);
+        Task<List<CalendarEvent>> GetCalendarEvents();
+        Task<CalendarEvent> CreateCalendarEvent(CalendarEvent dto);
         Task RemoveCalendarEvent(string id);
-        Task<CalendarEventVM> UpdatePutCalendarEvent(string id, CalendarEventUpdateDTO dto);
+        Task<CalendarEvent> UpdatePutCalendarEvent(CalendarEvent dto);
     }
 }

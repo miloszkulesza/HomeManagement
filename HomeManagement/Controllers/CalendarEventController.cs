@@ -1,7 +1,7 @@
-﻿using HomeManagement.Core.Consts;
-using HomeManagement.Core.DTO;
+﻿using HomeManagement.Application.DTO;
+using HomeManagement.Application.ViewModels;
+using HomeManagement.Core.Consts;
 using HomeManagement.Core.Interfaces.Services;
-using HomeManagement.Core.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,7 +38,7 @@ namespace HomeManagement.Controllers
         {
             try
             {
-                var createdEvent = await _calendarEventService.CreateCalendarEvent(dto);
+                var createdEvent = await _calendarEventService.CreateCalendarEvent(new Core.Entities.CalendarEvent() { Title = "", UserId = ""});
                 return Ok(createdEvent);
             }
             catch (Exception ex)
@@ -68,7 +68,8 @@ namespace HomeManagement.Controllers
         {
             try
             {
-                var updateResult = await _calendarEventService.UpdatePutCalendarEvent(id, dto);
+                var updateResult = await _calendarEventService
+                    .UpdatePutCalendarEvent(new Core.Entities.CalendarEvent() { Title = "", UserId = ""});
                 return Ok(updateResult);
             }
             catch (Exception ex)

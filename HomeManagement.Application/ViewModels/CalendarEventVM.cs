@@ -1,6 +1,4 @@
-﻿using HomeManagement.Core.Interfaces;
-
-namespace HomeManagement.Core.ViewModels
+﻿namespace HomeManagement.Application.ViewModels
 {
     public class CalendarEventVM
     {

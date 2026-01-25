@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HomeManagement.Core\HomeManagement.Core.csproj" />
+    <ProjectReference Include="..\HomeManagement.Application\HomeManagement.Application.csproj" />
     <ProjectReference Include="..\HomeManagement.Infrastructure\HomeManagement.Infrastructure.csproj" />
   </ItemGroup>
 

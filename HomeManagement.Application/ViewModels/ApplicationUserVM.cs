@@ -1,4 +1,4 @@
-﻿namespace HomeManagement.Core.ViewModels
+﻿namespace HomeManagement.Application.ViewModels
 {
     public class ApplicationUserVM
     {
