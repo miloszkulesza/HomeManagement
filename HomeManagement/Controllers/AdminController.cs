@@ -1,6 +1,8 @@
-﻿using HomeManagement.Application.DTO;
+﻿using AutoMapper;
+using HomeManagement.Application.DTO;
 using HomeManagement.Application.ViewModels;
 using HomeManagement.Core.Consts;
+using HomeManagement.Core.Entities;
 using HomeManagement.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,22 +11,17 @@ namespace HomeManagement.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AdminController : ControllerBase
+    public class AdminController(IMapper _mapper,
+        IAdminService _adminService) : ControllerBase
     {
-        private readonly IAdminService _adminService;
-
-        public AdminController(IAdminService adminService) 
-        {
-            _adminService = adminService;
-        }
-
         [Authorize(Roles = Roles.Admin)]
         [HttpGet]
         [Route("Users")]
         public async Task<ActionResult<List<ApplicationUserVM>>> GetUsers()
         {
-            var user = await _adminService.GetUsers();
-            return Ok(user);
+            var users = await _adminService.GetUsers();
+            var vms = _mapper.Map<List<ApplicationUserVM>>(users);
+            return Ok(vms);
         }
 
         [Authorize(Roles = Roles.User)]
@@ -33,7 +30,9 @@ namespace HomeManagement.Controllers
         public async Task<ActionResult<ApplicationUserVM?>> GetUser(string email)
         {
             var user = await _adminService.GetUser(email);
-            return Ok(user);
+            if (user is null) return NotFound();
+            var vm = _mapper.Map<ApplicationUserVM>(user);
+            return Ok(vm);
         }
 
         [Authorize(Roles = Roles.User)]
@@ -43,8 +42,10 @@ namespace HomeManagement.Controllers
         {
             try
             {
-                var user = await _adminService.UpdatePutUserProfile(id, new Core.Entities.User());
-                return Ok(user);
+                var domainUser = _mapper.Map<User>(dto);
+                var updated = await _adminService.UpdatePutUserProfile(id, domainUser);
+                var vm = _mapper.Map<ApplicationUserVM>(updated);
+                return Ok(vm);
             }
             catch (Exception ex)
             {
@@ -58,7 +59,8 @@ namespace HomeManagement.Controllers
         public async Task<ActionResult<List<IdentityRoleVM>>> GetRoles()
         {
             var roles = await _adminService.GetRoles();
-            return Ok(roles);
+            var vms = _mapper.Map<List<IdentityRoleVM>>(roles);
+            return Ok(vms);
         }
     }
 }

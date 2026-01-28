@@ -5,8 +5,8 @@ namespace HomeManagement.Core.Interfaces.Services
     public interface ICalendarEventService
     {
         Task<List<CalendarEvent>> GetCalendarEvents();
-        Task<CalendarEvent> CreateCalendarEvent(CalendarEvent dto);
+        Task<CalendarEvent> CreateCalendarEvent(CalendarEvent calendarEvent);
         Task RemoveCalendarEvent(string id);
-        Task<CalendarEvent> UpdatePutCalendarEvent(CalendarEvent dto);
+        Task<CalendarEvent> UpdatePutCalendarEvent(CalendarEvent calendarEvent);
     }
 }

@@ -1,6 +1,8 @@
-﻿using HomeManagement.Application.DTO;
+﻿using AutoMapper;
+using HomeManagement.Application.DTO;
 using HomeManagement.Application.ViewModels;
 using HomeManagement.Core.Consts;
+using HomeManagement.Core.Entities;
 using HomeManagement.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,22 +12,17 @@ namespace HomeManagement.Controllers
     [Authorize(Roles = Roles.User)]
     [ApiController]
     [Route("[controller]")]
-    public class CalendarEventController : ControllerBase
+    public class CalendarEventController(IMapper _mapper,
+        ICalendarEventService _calendarEventService) : ControllerBase
     {
-        private readonly ICalendarEventService _calendarEventService;
-
-        public CalendarEventController(ICalendarEventService calendarEventService)
-        {
-            _calendarEventService = calendarEventService;
-        }
-
         [HttpGet]
         public async Task<ActionResult<List<CalendarEventVM>>> GetCalendarEvents()
         {
             try
             {
                 var calendarEvents = await _calendarEventService.GetCalendarEvents();
-                return Ok(calendarEvents);
+                var vms = _mapper.Map<List<CalendarEventVM>>(calendarEvents);
+                return Ok(vms);
             }
             catch (Exception ex)
             {
@@ -38,8 +35,10 @@ namespace HomeManagement.Controllers
         {
             try
             {
-                var createdEvent = await _calendarEventService.CreateCalendarEvent(new Core.Entities.CalendarEvent() { Title = "", UserId = ""});
-                return Ok(createdEvent);
+                var domain = _mapper.Map<CalendarEvent>(dto);
+                var created = await _calendarEventService.CreateCalendarEvent(domain);
+                var vm = _mapper.Map<CalendarEventVM>(created);
+                return Ok(vm);
             }
             catch (Exception ex)
             {
@@ -68,9 +67,11 @@ namespace HomeManagement.Controllers
         {
             try
             {
-                var updateResult = await _calendarEventService
-                    .UpdatePutCalendarEvent(new Core.Entities.CalendarEvent() { Title = "", UserId = ""});
-                return Ok(updateResult);
+                var domain = _mapper.Map<CalendarEvent>(dto);
+                domain.Id = Guid.TryParse(id, out var g) ? g : domain.Id;
+                var updateResult = await _calendarEventService.UpdatePutCalendarEvent(domain);
+                var vm = _mapper.Map<CalendarEventVM>(updateResult);
+                return Ok(vm);
             }
             catch (Exception ex)
             {

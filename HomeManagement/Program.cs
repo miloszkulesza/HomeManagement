@@ -1,12 +1,7 @@
 using HomeManagement.Application;
-using HomeManagement.Core.Interfaces.Repositories;
-using HomeManagement.Core.Interfaces.Services;
 using HomeManagement.Infrastructure;
 using HomeManagement.Infrastructure.Database;
-using HomeManagement.Infrastructure.Repositories;
-using HomeManagement.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace HomeManagement
 {
@@ -15,19 +10,15 @@ namespace HomeManagement
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            var allowedHosts = builder.Configuration.GetSection("CORS:AllowedHosts").Get<string[]>();
-            builder.Services.AddCors(options => options.AddDefaultPolicy(builder =>
-            {
-                builder.WithOrigins(allowedHosts!)
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowAnyOrigin();
 
-            }));
-            builder.Services.AddDbContext<HomeManagementContext>(opt =>
+            var allowedHosts = builder.Configuration.GetSection("CORS:AllowedHosts").Get<string[]>();
+            builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
             {
-                opt.UseSqlServer(builder.Configuration.GetConnectionString("HomeManagementConnection"));
-            });
+                policy.WithOrigins(allowedHosts ?? Array.Empty<string>())
+                      .AllowAnyMethod()
+                      .AllowAnyHeader();
+            }));
+
             builder.Services.AddSingleton(TimeProvider.System);
             builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
@@ -35,20 +26,15 @@ namespace HomeManagement
                 .AddRoles<IdentityRole>()
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<HomeManagementContext>();
+
+            builder.Services.AddApplication();
+            builder.Services.AddInfrastructure(builder.Configuration);
+
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
-            builder.Services.AddAutoMapper(cfg => 
-            {
-                cfg.AddMaps(typeof(ApplicationAssemblyMarker).Assembly);
-                cfg.AddMaps(typeof(InfrastructureAssemblyMarker).Assembly);
-            });
 
-            builder.Services.AddScoped<IAdminService, AdminService>();
-            builder.Services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
-            builder.Services.AddScoped<ICalendarEventService, CalendarEventService>();
-            
             var app = builder.Build();
-            
+
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
@@ -59,13 +45,14 @@ namespace HomeManagement
                     opt.SpecUrl("/openapi/v1.json");
                 });
             }
+
             app.UseCors();
 
             using var scope = app.Services.CreateScope();
             await InitializeDatabase.Seed(scope.ServiceProvider);
 
             app.UseHttpsRedirection();
-            
+
             app.UseAuthentication();
             app.UseAuthorization();
 
