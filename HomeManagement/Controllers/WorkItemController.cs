@@ -6,17 +6,41 @@ using HomeManagement.Core.Entities;
 using HomeManagement.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace HomeManagement.Controllers
 {
+    /// <summary>
+    /// Zarządzanie zadaniami (WorkItems).
+    /// </summary>
     [Authorize(Roles = Roles.User)]
     [ApiController]
     [Route("[controller]")]
-    public class WorkItemController(IMapper _mapper, 
-        IWorkItemService _workItemService) : ControllerBase
+    [Produces("application/json")]
+    public class WorkItemController : ControllerBase
     {
+        private readonly IMapper _mapper;
+        private readonly IWorkItemService _workItemService;
+
+        /// <summary>
+        /// Tworzy instancję <see cref="WorkItemController"/>.
+        /// </summary>
+        /// <param name="mapper">AutoMapper do mapowania DTO/VM.</param>
+        /// <param name="workItemService">Serwis aplikacyjny zarządzania zadaniami.</param>
+        public WorkItemController(IMapper mapper, IWorkItemService workItemService)
+        {
+            _mapper = mapper;
+            _workItemService = workItemService;
+        }
+
+        /// <summary>
+        /// Pobierz wszystkie zadania.
+        /// </summary>
+        /// <returns>Lista zadań jako <see cref="WorkItemVM"/>.</returns>
         [HttpGet]
-        public async Task<ActionResult<List<WorkItem>>> GetWorkItems()
+        [SwaggerOperation(Summary = "Pobierz zadania", Description = "Zwraca listę wszystkich zadań.")]
+        [ProducesResponseType(typeof(List<WorkItemVM>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<WorkItemVM>>> GetWorkItems()
         {
             try
             {
@@ -30,7 +54,16 @@ namespace HomeManagement.Controllers
             }
         }
 
+        /// <summary>
+        /// Utwórz zadanie.
+        /// </summary>
+        /// <param name="dto">Dane tworzonego zadania.</param>
+        /// <returns>Utworzone zadanie jako <see cref="WorkItemVM"/>.</returns>
         [HttpPost]
+        [SwaggerOperation(Summary = "Utwórz zadanie", Description = "Tworzy nowe zadanie na podstawie WorkItemDto.")]
+        [Consumes("application/json")]
+        [ProducesResponseType(typeof(WorkItemVM), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<WorkItemVM>> CreateWorkItem([FromBody] WorkItemDto dto)
         {
             try
@@ -46,7 +79,15 @@ namespace HomeManagement.Controllers
             }
         }
 
+        /// <summary>
+        /// Usuń zadanie po id.
+        /// </summary>
+        /// <param name="id">Id zadania do usunięcia (GUID jako string).</param>
+        /// <returns>200 OK jeśli usunięto, 404 jeśli nie znaleziono.</returns>
         [HttpDelete("{id}")]
+        [SwaggerOperation(Summary = "Usuń zadanie", Description = "Usuwa zadanie o podanym id.")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteWorkItem(string id)
         {
             try
@@ -60,7 +101,17 @@ namespace HomeManagement.Controllers
             }
         }
 
+        /// <summary>
+        /// Zastępuje zadanie (PUT).
+        /// </summary>
+        /// <param name="id">Id zadania do aktualizacji (GUID jako string).</param>
+        /// <param name="dto">Dane do aktualizacji zadania.</param>
+        /// <returns>Zaktualizowane zadanie jako <see cref="WorkItemVM"/>.</returns>
         [HttpPut("{id}")]
+        [SwaggerOperation(Summary = "Aktualizuj zadanie", Description = "Zastępuje zadanie o podanym id danymi z DTO.")]
+        [Consumes("application/json")]
+        [ProducesResponseType(typeof(WorkItemVM), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<WorkItemVM>> UpdatePutWorkItem(string id, [FromBody] WorkItemDto dto)
         {
             try
@@ -80,7 +131,13 @@ namespace HomeManagement.Controllers
             }
         }
 
+        /// <summary>
+        /// Usuń wszystkie ukończone zadania.
+        /// </summary>
+        /// <returns>200 OK po wykonaniu operacji.</returns>
         [HttpDelete("done")]
+        [SwaggerOperation(Summary = "Usuń ukończone zadania", Description = "Usuwa wszystkie zadania oznaczone jako IsDone.")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult> DeleteDoneWorkItems()
         {
             try
