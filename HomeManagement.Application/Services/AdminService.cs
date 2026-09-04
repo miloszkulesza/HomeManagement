@@ -30,7 +30,7 @@ namespace HomeManagement.Application.Services
         {
             await _identityService.UpdateUserAsync(id, user);
             var updated = await _identityService.GetUserById(id);
-            if (updated is null) throw new Exception($"Nie znaleziono uøytkownika o identyfikatorze {id}");
+            if (updated is null) throw new KeyNotFoundException($"Nie znaleziono u≈ºytkownika o identyfikatorze {id}");
             return updated;
         }
     }

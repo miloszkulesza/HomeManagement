@@ -10,10 +10,13 @@ namespace HomeManagement.Application.Profiles
         public WorkItemProfile()
         {
             CreateMap<WorkItemDto, WorkItem>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore());
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.AssignedToUserId));
 
-            CreateMap<WorkItem, WorkItemDto>();
-            CreateMap<WorkItem, WorkItemVM>();
+            CreateMap<WorkItem, WorkItemDto>()
+                .ForMember(dest => dest.AssignedToUserId, opt => opt.MapFrom(src => src.UserId));
+            CreateMap<WorkItem, WorkItemVM>()
+                .ForMember(dest => dest.AssignedToUserId, opt => opt.MapFrom(src => src.UserId));
         }
     }
 }

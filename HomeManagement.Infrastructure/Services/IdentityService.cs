@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HomeManagement.Core.Entities;
+using HomeManagement.Core.Exceptions;
 using HomeManagement.Core.Interfaces.Services;
 using HomeManagement.Infrastructure.Database;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace HomeManagement.Infrastructure.Services
 {
@@ -27,29 +29,49 @@ namespace HomeManagement.Infrastructure.Services
 
         public async Task<User?> GetUserByEmail(string email)
         {
-            var user = _userManager.Users.FirstOrDefault(x => x.Email == email);
-            if (user is null) return null;
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user is null)
+                return null;
+
             var roles = await _userManager.GetRolesAsync(user);
-            return _mapper.Map<User>((user, roles));
+
+            var result = _mapper.Map<User>(user);
+            result.Roles = roles.ToList();
+
+            return result;
         }
 
         public async Task<User?> GetUserById(string id)
         {
-            var user = _userManager.Users.FirstOrDefault(x => x.Id == id);
-            if (user is null) return null;
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user is null)
+                return null;
+
             var roles = await _userManager.GetRolesAsync(user);
-            return _mapper.Map<User>((user, roles));
+
+            var result = _mapper.Map<User>(user);
+            result.Roles = roles.ToList();
+
+            return result;
         }
 
         public async Task<List<User>> GetUsers()
         {
-            var users = _userManager.Users.ToList();
+            var users = await _userManager.Users.ToListAsync();
             var result = new List<User>();
-            foreach (var u in users)
+
+            foreach (var user in users)
             {
-                var roles = await _userManager.GetRolesAsync(u);
-                result.Add(_mapper.Map<User>((u, roles)));
+                var roles = await _userManager.GetRolesAsync(user);
+
+                var mappedUser = _mapper.Map<User>(user);
+                mappedUser.Roles = roles.ToList();
+
+                result.Add(mappedUser);
             }
+
             return result;
         }
 
@@ -68,10 +90,14 @@ namespace HomeManagement.Infrastructure.Services
 
         public async Task UpdateUserAsync(string id, User user)
         {
-            var foundUser = _userManager.Users.FirstOrDefault(x => x.Id == id);
-            if (foundUser is null) throw new Exception($"Nie znaleziono u¿ytkownika o identyfikatorze {id}");
-            _mapper.Map(user, foundUser);
-            await _userManager.UpdateAsync(foundUser);
+            var foundUser = await _userManager.FindByIdAsync(id);
+            if (foundUser is null)
+                throw new KeyNotFoundException($"Nie znaleziono uÅ¼ytkownika o identyfikatorze {id}.");
+
+            foundUser.CalendarEventBackgroundColor = user.CalendarEventBackgroundColor;
+            var result = await _userManager.UpdateAsync(foundUser);
+            if (!result.Succeeded)
+                throw new ConflictException(string.Join(", ", result.Errors.Select(x => x.Description)));
         }
     }
 }

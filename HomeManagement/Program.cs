@@ -1,8 +1,10 @@
 using HomeManagement.Application;
+using HomeManagement.Core.Consts;
 using HomeManagement.Infrastructure;
 using HomeManagement.Infrastructure.Database;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using System.Reflection;
 
 namespace HomeManagement
@@ -34,6 +36,8 @@ namespace HomeManagement
             builder.Services.AddInfrastructure(builder.Configuration);
 
             builder.Services.AddControllers();
+            builder.Services.AddProblemDetails();
+            builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
@@ -50,38 +54,22 @@ namespace HomeManagement
                 var bearerScheme = new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
-                    Description = "WprowadŸ token JWT w formacie: Bearer {token}",
+                    Description = "WprowadÅº token JWT w formacie: Bearer {token}",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.Http,
                     Scheme = "bearer",
-                    BearerFormat = "JWT",
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    }
+                    BearerFormat = "JWT"
                 };
                 c.AddSecurityDefinition("Bearer", bearerScheme);
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
                 {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            },
-                            Scheme = "bearer",
-                            Name = "Bearer",
-                            In = ParameterLocation.Header
-                        },
-                        new List<string>()
-                    }
+                    [new OpenApiSecuritySchemeReference("Bearer", document)] = []
                 });
             });
 
             var app = builder.Build();
+
+            app.UseExceptionHandler();
 
             if (app.Environment.IsDevelopment())
             {
@@ -107,8 +95,22 @@ namespace HomeManagement
 
             app.MapGroup("/api")
                 .MapControllers();
-            app.MapGroup("/api/auth")
+            var identityEndpoints = app.MapGroup("/api/auth")
                 .MapIdentityApi<ApplicationUser>();
+
+            identityEndpoints.Add(endpointBuilder =>
+            {
+                if (endpointBuilder is not RouteEndpointBuilder routeEndpointBuilder)
+                    return;
+
+                var lastSegment = routeEndpointBuilder.RoutePattern.RawText?
+                    .TrimEnd('/')
+                    .Split('/')
+                    .LastOrDefault();
+
+                if (string.Equals(lastSegment, "register", StringComparison.OrdinalIgnoreCase))
+                    endpointBuilder.Metadata.Add(new AuthorizeAttribute { Roles = Roles.Admin });
+            });
 
             app.Run();
         }

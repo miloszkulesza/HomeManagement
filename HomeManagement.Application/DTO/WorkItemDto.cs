@@ -1,10 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace HomeManagement.Application.DTO
 {
     public class WorkItemDto
     {
-        public required string Title { get; set; }
+        [Required]
+        [MaxLength(200)]
+        public string Title { get; set; } = string.Empty;
+
         public bool Priority { get; set; }
         public bool IsDone { get; set; }
-        public required string UserId { get; set; }
+        public string AssignedToUserId { get; set; } = string.Empty;
     }
 }

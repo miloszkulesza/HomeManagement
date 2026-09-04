@@ -1,11 +1,14 @@
-﻿namespace HomeManagement.Application.DTO
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace HomeManagement.Application.DTO
 {
     public class CalendarEventCreateDTO
     {
-        public Guid Id { get; set; }
-        public string Title { get; set; } = null!;
+        [Required]
+        [MaxLength(200)]
+        public string Title { get; set; } = string.Empty;
+
         public DateTimeOffset StartDate { get; set; }
         public DateTimeOffset EndDate { get; set; }
-        public string UserEmail { get; set; } = null!;
     }
 }

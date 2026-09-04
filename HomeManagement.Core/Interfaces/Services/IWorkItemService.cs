@@ -6,8 +6,8 @@ namespace HomeManagement.Core.Interfaces.Services
     {
         Task<List<WorkItem>> GetWorkItems();
         Task<WorkItem> CreateWorkItem(WorkItem workItem);
-        Task RemoveWorkItem(string id);
-        Task<WorkItem> UpdatePutWorkItem(WorkItem workItem);
+        Task RemoveWorkItem(Guid id);
+        Task<WorkItem> UpdatePutWorkItem(Guid id, WorkItem workItem);
         Task DeleteDoneWorkItems();
     }
 }

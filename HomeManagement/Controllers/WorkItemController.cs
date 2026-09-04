@@ -13,7 +13,7 @@ namespace HomeManagement.Controllers
     /// <summary>
     /// Zarządzanie zadaniami (WorkItems).
     /// </summary>
-    [Authorize(Roles = Roles.User)]
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     [Produces("application/json")]
@@ -42,16 +42,9 @@ namespace HomeManagement.Controllers
         [ProducesResponseType(typeof(List<WorkItemVM>), StatusCodes.Status200OK)]
         public async Task<ActionResult<List<WorkItemVM>>> GetWorkItems()
         {
-            try
-            {
-                var items = await _workItemService.GetWorkItems();
-                var vms = _mapper.Map<List<WorkItemVM>>(items);
-                return Ok(vms);
-            }
-            catch (Exception ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
+            var items = await _workItemService.GetWorkItems();
+            var vms = _mapper.Map<List<WorkItemVM>>(items);
+            return Ok(vms);
         }
 
         /// <summary>
@@ -66,17 +59,10 @@ namespace HomeManagement.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<WorkItemVM>> CreateWorkItem([FromBody] WorkItemDto dto)
         {
-            try
-            {
-                var entity = _mapper.Map<WorkItem>(dto);
-                var created = await _workItemService.CreateWorkItem(entity);
-                var vm = _mapper.Map<WorkItemVM>(created);
-                return Ok(vm);
-            }
-            catch (Exception ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
+            var entity = _mapper.Map<WorkItem>(dto);
+            var created = await _workItemService.CreateWorkItem(entity);
+            var vm = _mapper.Map<WorkItemVM>(created);
+            return CreatedAtAction(nameof(GetWorkItems), new { id = created.Id }, vm);
         }
 
         /// <summary>
@@ -88,17 +74,10 @@ namespace HomeManagement.Controllers
         [SwaggerOperation(Summary = "Usuń zadanie", Description = "Usuwa zadanie o podanym id.")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> DeleteWorkItem(string id)
+        public async Task<ActionResult> DeleteWorkItem(Guid id)
         {
-            try
-            {
-                await _workItemService.RemoveWorkItem(id);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
+            await _workItemService.RemoveWorkItem(id);
+            return NoContent();
         }
 
         /// <summary>
@@ -112,23 +91,12 @@ namespace HomeManagement.Controllers
         [Consumes("application/json")]
         [ProducesResponseType(typeof(WorkItemVM), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<WorkItemVM>> UpdatePutWorkItem(string id, [FromBody] WorkItemDto dto)
+        public async Task<ActionResult<WorkItemVM>> UpdatePutWorkItem(Guid id, [FromBody] WorkItemDto dto)
         {
-            try
-            {
-                if (!Guid.TryParse(id, out var guid))
-                    return BadRequest("Nieprawidłowe id");
-
-                var entity = _mapper.Map<WorkItem>(dto);
-                entity.Id = guid;
-                var updated = await _workItemService.UpdatePutWorkItem(entity);
-                var vm = _mapper.Map<WorkItemVM>(updated);
-                return Ok(vm);
-            }
-            catch (Exception ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
+            var entity = _mapper.Map<WorkItem>(dto);
+            var updated = await _workItemService.UpdatePutWorkItem(id, entity);
+            var vm = _mapper.Map<WorkItemVM>(updated);
+            return Ok(vm);
         }
 
         /// <summary>
@@ -140,15 +108,8 @@ namespace HomeManagement.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult> DeleteDoneWorkItems()
         {
-            try
-            {
-                await _workItemService.DeleteDoneWorkItems();
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
+            await _workItemService.DeleteDoneWorkItems();
+            return NoContent();
         }
     }
 }

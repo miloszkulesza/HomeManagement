@@ -6,6 +6,6 @@ namespace HomeManagement.Application.ViewModels
         public required string Title { get; set; }
         public bool Priority { get; set; }
         public bool IsDone { get; set; }
-        public required string UserId { get; set; }
+        public required string AssignedToUserId { get; set; }
     }
 }

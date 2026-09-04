@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using HomeManagement.Application.DTO;
 using HomeManagement.Application.ViewModels;
 using HomeManagement.Core.Consts;
@@ -13,7 +14,7 @@ namespace HomeManagement.Controllers
     /// <summary>
     /// Zarządzanie wydarzeniami kalendarza.
     /// </summary>
-    [Authorize(Roles = Roles.User)]
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     [Produces("application/json")]
@@ -21,16 +22,22 @@ namespace HomeManagement.Controllers
     {
         private readonly IMapper _mapper;
         private readonly ICalendarEventService _calendarEventService;
+        private readonly IAdminService _adminService;
 
         /// <summary>
         /// Tworzy instancję <see cref="CalendarEventController"/>.
         /// </summary>
         /// <param name="mapper">AutoMapper do konwersji DTO/VM.</param>
         /// <param name="calendarEventService">Serwis aplikacyjny wydarzeń kalendarza.</param>
-        public CalendarEventController(IMapper mapper, ICalendarEventService calendarEventService)
+        /// <param name="adminService">Serwis dostarczający dane autorów wydarzeń.</param>
+        public CalendarEventController(
+            IMapper mapper,
+            ICalendarEventService calendarEventService,
+            IAdminService adminService)
         {
             _mapper = mapper;
             _calendarEventService = calendarEventService;
+            _adminService = adminService;
         }
 
         /// <summary>
@@ -43,16 +50,17 @@ namespace HomeManagement.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<List<CalendarEventVM>>> GetCalendarEvents()
         {
-            try
+            var calendarEvents = await _calendarEventService.GetCalendarEvents();
+            var usersById = (await _adminService.GetUsers()).ToDictionary(user => user.Id);
+            var vms = calendarEvents.Select(calendarEvent =>
             {
-                var calendarEvents = await _calendarEventService.GetCalendarEvents();
-                var vms = _mapper.Map<List<CalendarEventVM>>(calendarEvents);
-                return Ok(vms);
-            }
-            catch (Exception ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
+                if (!usersById.TryGetValue(calendarEvent.UserId, out var user))
+                    throw new KeyNotFoundException($"Nie znaleziono autora wydarzenia {calendarEvent.Id}.");
+
+                return _mapper.Map<CalendarEventVM>((calendarEvent, user));
+            }).ToList();
+
+            return Ok(vms);
         }
 
         /// <summary>
@@ -67,17 +75,11 @@ namespace HomeManagement.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CalendarEventVM>> CreateCalendarEvent([FromBody] CalendarEventCreateDTO dto)
         {
-            try
-            {
-                var domain = _mapper.Map<CalendarEvent>(dto);
-                var created = await _calendarEventService.CreateCalendarEvent(domain);
-                var vm = _mapper.Map<CalendarEventVM>(created);
-                return Ok(vm);
-            }
-            catch (Exception ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
+            var domain = _mapper.Map<CalendarEvent>(dto);
+            domain.UserId = GetCurrentUserId();
+            var created = await _calendarEventService.CreateCalendarEvent(domain);
+            var vm = await MapViewModel(created);
+            return CreatedAtAction(nameof(GetCalendarEvents), new { id = created.Id }, vm);
         }
 
         /// <summary>
@@ -89,17 +91,10 @@ namespace HomeManagement.Controllers
         [SwaggerOperation(Summary = "Usuń wydarzenie", Description = "Usuwa wydarzenie kalendarza o podanym id.")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> DeleteCalendarEvent(string id)
+        public async Task<ActionResult> DeleteCalendarEvent(Guid id)
         {
-            try
-            {
-                await _calendarEventService.RemoveCalendarEvent(id);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
+            await _calendarEventService.RemoveCalendarEvent(id);
+            return NoContent();
         }
 
         /// <summary>
@@ -113,20 +108,24 @@ namespace HomeManagement.Controllers
         [Consumes("application/json")]
         [ProducesResponseType(typeof(CalendarEventVM), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<CalendarEventVM>> UpdatePutCalendarEvent(string id, [FromBody] CalendarEventUpdateDTO dto)
+        public async Task<ActionResult<CalendarEventVM>> UpdatePutCalendarEvent(Guid id, [FromBody] CalendarEventUpdateDTO dto)
         {
-            try
-            {
-                var domain = _mapper.Map<CalendarEvent>(dto);
-                domain.Id = Guid.TryParse(id, out var g) ? g : domain.Id;
-                var updateResult = await _calendarEventService.UpdatePutCalendarEvent(domain);
-                var vm = _mapper.Map<CalendarEventVM>(updateResult);
-                return Ok(vm);
-            }
-            catch (Exception ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
+            var domain = _mapper.Map<CalendarEvent>(dto);
+            var updated = await _calendarEventService.UpdatePutCalendarEvent(id, domain);
+            var vm = await MapViewModel(updated);
+            return Ok(vm);
+        }
+
+        private string GetCurrentUserId() =>
+            User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new UnauthorizedAccessException("Brak identyfikatora użytkownika w tokenie.");
+
+        private async Task<CalendarEventVM> MapViewModel(CalendarEvent calendarEvent)
+        {
+            var user = await _adminService.GetUserById(calendarEvent.UserId)
+                ?? throw new KeyNotFoundException($"Nie znaleziono autora wydarzenia {calendarEvent.Id}.");
+
+            return _mapper.Map<CalendarEventVM>((calendarEvent, user));
         }
     }
 }

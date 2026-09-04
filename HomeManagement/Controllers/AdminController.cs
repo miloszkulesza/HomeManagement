@@ -52,7 +52,7 @@ namespace HomeManagement.Controllers
         /// </summary>
         /// <param name="email">Adres email użytkownika do wyszukania.</param>
         /// <returns>Pojedynczy użytkownik jako <see cref="ApplicationUserVM"/> lub 404 jeśli nie istnieje.</returns>
-        [Authorize(Roles = Roles.User)]
+        [Authorize(Roles = Roles.Admin)]
         [HttpGet("Users/{email}")]
         [SwaggerOperation(Summary = "Pobierz użytkownika", Description = "Zwraca użytkownika wraz z listą ról.")]
         [ProducesResponseType(typeof(ApplicationUserVM), StatusCodes.Status200OK)]
@@ -72,26 +72,20 @@ namespace HomeManagement.Controllers
         /// <param name="id">Id użytkownika do aktualizacji.</param>
         /// <param name="dto">Dane aktualizacji użytkownika.</param>
         /// <returns>Zaktualizowany użytkownik jako <see cref="ApplicationUserVM"/>.</returns>
-        [Authorize(Roles = Roles.User)]
+        [Authorize(Roles = Roles.Admin)]
         [HttpPut("Users/{id}")]
         [SwaggerOperation(Summary = "Aktualizuj profil użytkownika", Description = "Zastępuje profil użytkownika wskazanego identyfikatorem.")]
         [Produces("application/json")]
         [Consumes("application/json")]
         [ProducesResponseType(typeof(ApplicationUserVM), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult<ApplicationUserVM?>> UpdatePutUserProfile(string id, ApplicationUserUpdateDTO dto)
         {
-            try
-            {
-                var domainUser = _mapper.Map<User>(dto);
-                var updated = await _adminService.UpdatePutUserProfile(id, domainUser);
-                var vm = _mapper.Map<ApplicationUserVM>(updated);
-                return Ok(vm);
-            }
-            catch (Exception ex)
-            {
-                return UnprocessableEntity(ex.Message);
-            }
+            var domainUser = _mapper.Map<User>(dto);
+            var updated = await _adminService.UpdatePutUserProfile(id, domainUser);
+            var vm = _mapper.Map<ApplicationUserVM>(updated);
+            return Ok(vm);
         }
 
         /// <summary>

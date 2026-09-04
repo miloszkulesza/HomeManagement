@@ -6,7 +6,7 @@ namespace HomeManagement.Core.Interfaces.Services
     {
         Task<List<CalendarEvent>> GetCalendarEvents();
         Task<CalendarEvent> CreateCalendarEvent(CalendarEvent calendarEvent);
-        Task RemoveCalendarEvent(string id);
-        Task<CalendarEvent> UpdatePutCalendarEvent(CalendarEvent calendarEvent);
+        Task RemoveCalendarEvent(Guid id);
+        Task<CalendarEvent> UpdatePutCalendarEvent(Guid id, CalendarEvent calendarEvent);
     }
 }
